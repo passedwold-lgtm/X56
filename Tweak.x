@@ -83,7 +83,13 @@
     }
     
     if (!window) {
-        window = [UIApplication sharedApplication].keyWindow;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        window = [[UIApplication sharedApplication] keyWindow];
+        if (!window && [[UIApplication sharedApplication] windows].count > 0) {
+            window = [[UIApplication sharedApplication] windows].firstObject;
+        }
+#pragma clang diagnostic pop
     }
     
     if (window) {
