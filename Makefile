@@ -6,14 +6,20 @@ include $(THEOS)/makefiles/common.mk
 
 TWEAK_NAME = NexoraFF
 
+# ไฟล์และ Framework
 $(TWEAK_NAME)_FILES = Tweak.x
 $(TWEAK_NAME)_FRAMEWORKS = UIKit WebKit
+
+# Compiler flags
 $(TWEAK_NAME)_CFLAGS = -fobjc-arc
 $(TWEAK_NAME)_INSTALL_PATH = /Library/MobileSubstrate/DynamicLibraries
 
+# ใช้ plist ที่ชื่อเดียวกับ tweak
+$(TWEAK_NAME)_EXTRA_FRAMEWORKS += $(TWEAK_NAME)
+
 include $(THEOS)/makefiles/tweak.mk
 
-# บรรทัดที่ 21 ↓ ต้องขึ้นต้นด้วย TAB เท่านั้น
+# ========== คัดลอก HTML ไปติดตั้ง ==========
 internal-stage::
 	mkdir -p $(THEOS_STAGING_DIR)/Library/NexoraFF
 	cp -f Fluorite.html $(THEOS_STAGING_DIR)/Library/NexoraFF/ 2>/dev/null || true
