@@ -20,6 +20,11 @@ jobs:
         brew install make
         brew install ldid
 
+    - name: Upgrade GNU Make (Fix parallel build warning)
+      run: |
+        brew upgrade make || brew install make
+        echo "PATH=$(brew --prefix make)/libexec/gnubin:$PATH" >> $GITHUB_ENV
+
     - name: Setup Theos
       run: |
         git clone --recursive https://github.com/theos/theos.git $HOME/theos
@@ -29,7 +34,7 @@ jobs:
     - name: Setup iOS SDK
       run: |
         rm -rf $HOME/theos/sdks
-        git clone https://github.com/theos/sdks.git $HOME/theos/sdks
+        git clone --depth 1 https://github.com/theos/sdks.git $HOME/theos/sdks
 
     - name: Build Tweak
       run: |
@@ -38,18 +43,9 @@ jobs:
         export TARGET=iphone:clang:latest:16.5
         make package FINALPACKAGE=1
 
-    - name: Find and Upload .deb
-      run: |
-        find . -name "*.deb" -print
-      continue-on-error: true
-
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
         name: NexoraHTML-Tweak
-        path: |
-          packages/*.deb
-          *.deb
-          .theos/*.deb
-          **/*.deb
+        path: packages/*.deb
         if-no-files-found: warn
