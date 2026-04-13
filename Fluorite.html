@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThanhPrdiOS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-sidebar: #080a0f;
+            --bg-content: #0b0d12;
+            --item-active-bg: #13151b;
+            --accent: #ff5f1f; 
+            --text-main: #e4e4e7;
+            --text-dim: #71717a;
+            --border-color: #27272a;
+            --dropdown-bg: #16181d;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; user-select: none; }
+
+        body {
+            background-color: transparent; 
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .menu-wrapper {
+            display: flex;
+            width: 380px;
+            height: 260px;
+            background-color: var(--bg-content);
+            border-radius: 6px;
+            border: 1px solid #222;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.8);
+            overflow: hidden;
+            font-size: 10px;
+            color: white;
+        }
+
+        .sidebar {
+            width: 50px;
+            background-color: var(--bg-sidebar);
+            display: flex;
+            flex-direction: column;
+            padding-top: 10px;
+            border-right: 1px solid #1a1a20;
+            z-index: 2;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 50px;
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: 0.2s;
+            position: relative;
+        }
+
+        .nav-item i { font-size: 14px; margin-bottom: 3px; }
+        .nav-item span { font-size: 8px; font-weight: 500; }
+        .nav-item:hover { color: var(--text-main); }
+        
+        .nav-item.active { color: var(--text-main); }
+        .nav-item.active i { color: var(--accent); }
+        .nav-item.active::after {
+            content: ''; position: absolute; right: 0; top: 10%; height: 80%; width: 2px;
+            background-color: var(--accent); border-radius: 2px 0 0 2px;
+        }
+
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .tab-content {
+            display: none; 
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+        }
+
+        .tab-content.active {
+            display: flex;
+        }
+
+        .header-section {
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            background-color: var(--bg-content);
+            border-bottom: 1px solid #1a1a20;
+            z-index: 10;
+        }
+        .header-section i { color: var(--accent); font-size: 11px; margin-right: 6px; }
+        .header-title { color: var(--accent); font-weight: 700; font-size: 10px; margin-right: 6px; text-transform: uppercase; }
+        .header-divider { height: 10px; width: 1px; background-color: #3f3f46; margin-right: 6px; }
+        .header-desc { color: var(--text-dim); font-size: 9px; }
+
+        .scroll-area {
+            flex: 1;
+            padding: 10px 12px;
+            overflow-y: auto;
+        }
+        .scroll-area::-webkit-scrollbar { width: 4px; }
+        .scroll-area::-webkit-scrollbar-track { background: #0b0d12; }
+        .scroll-area::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+
+        .checkbox-row {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 8px; cursor: pointer; height: 16px;
+        }
+        .cb-left { display: flex; align-items: center; }
+        .custom-checkbox {
+            width: 14px; height: 14px; background-color: #1e1e24;
+            border-radius: 3px; margin-right: 8px;
+            display: flex; align-items: center; justify-content: center;
+            border: 1px solid #333; transition: 0.2s;
+        }
+        .custom-checkbox.active { background-color: var(--accent); border-color: var(--accent); }
+        .custom-checkbox.active::after { content: '\f00c'; font-family: "Font Awesome 6 Free"; font-weight: 900; font-size: 9px; color: white; }
+        .label { color: var(--text-main); font-size: 10px; font-weight: 500; }
+        .label.dim { color: var(--text-dim); }
+
+        .group-label { color: var(--text-dim); font-size: 9px; margin-bottom: 4px; margin-top: 8px; }
+        .dropdown-container { position: relative; width: 100%; margin-bottom: 8px; }
+        .dropdown-header {
+            width: 100%; height: 24px; background-color: var(--dropdown-bg);
+            border-radius: 4px; display: flex; align-items: center; justify-content: space-between;
+            padding: 0 8px; cursor: pointer; border: 1px solid #222;
+        }
+        .dropdown-text { font-size: 9px; color: #ccc; }
+        .dropdown-icon { font-size: 8px; color: #666; transition: 0.2s; }
+        .dropdown-list {
+            position: absolute; top: 100%; left: 0; width: 100%;
+            background-color: #1a1c23; border: 1px solid #333; border-radius: 4px;
+            margin-top: 4px; display: none; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        .dropdown-list.open { display: block; }
+        .dropdown-item { padding: 6px 8px; font-size: 9px; color: #aaa; cursor: pointer; transition: 0.2s; }
+        .dropdown-item:hover { background-color: var(--accent); color: white; }
+
+        .color-group { display: flex; gap: 4px; }
+        .color-box { width: 14px; height: 10px; border-radius: 2px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); }
+        .color-preview { width: 12px; height: 12px; background-color: white; border-radius: 2px; cursor: pointer; }
+
+        .slider-container { margin-top: 10px; margin-bottom: 5px; }
+        .slider-label { color: var(--text-dim); font-size: 9px; margin-bottom: 4px; display: flex; justify-content: space-between; }
+        .slider-value { color: var(--accent); }
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; height: 10px; width: 10px; border-radius: 50%;
+            background: white; border: 2px solid var(--accent); cursor: pointer; margin-top: -3px; 
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%; height: 4px; cursor: pointer; background: #1e1e24; border-radius: 2px; border: 1px solid #333;
+        }
+        input[type="range"] {
+            background: linear-gradient(to right, var(--accent) 0%, var(--accent) 50%, #1e1e24 50%, #1e1e24 100%);
+            background-size: 100% 4px; background-repeat: no-repeat; background-position: center;
+        }
+
+        .btn-container { margin-top: auto; display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; }
+        .btn {
+            width: 100%; height: 22px; background-color: var(--accent); border: none; border-radius: 3px;
+            color: white; font-weight: 600; font-size: 9px; cursor: pointer; transition: opacity 0.2s;
+        }
+        .btn:hover { opacity: 0.9; }
+        
+        .info-row { margin-bottom: 2px; color: var(--text-main); font-weight: 500; font-size: 9px; }
+        .info-row.dim { color: var(--text-dim); font-size: 8px; margin-bottom: 5px; }
+        .info-row.pink { color: var(--accent); margin-top: 2px; font-size: 9px; }
+
+    </style>
+</head>
+<body>
+
+    <div class="menu-wrapper">
+        <div class="sidebar">
+            <div class="nav-item active" onclick="switchTab('aimbot', this)">
+                <i class="fa-solid fa-crosshairs"></i><span>Aimbot</span>
+            </div>
+            <div class="nav-item" onclick="switchTab('visuals', this)">
+                <i class="fa-solid fa-eye"></i><span>Visuals</span>
+            </div>
+            <div class="nav-item" onclick="switchTab('misc', this)">
+                <i class="fa-solid fa-layer-group"></i><span>Misc</span>
+            </div>
+            <div class="nav-item" onclick="switchTab('settings', this)">
+                <i class="fa-solid fa-gear"></i><span>Settings</span>
+            </div>
+        </div>
+
+        <div id="tab-aimbot" class="tab-content active">
+            <div class="header-section">
+                <i class="fa-solid fa-crosshairs"></i><span class="header-title">AIMBOT</span>
+                <div class="header-divider"></div><span class="header-desc">Auto aim enemies.</span>
+            </div>
+            <div class="scroll-area">
+                <div class="checkbox-row" onclick="toggleCheckbox(this)">
+                    <div class="cb-left"><div class="custom-checkbox active"></div><span class="label">Aimbot</span></div>
+                </div>
+                <div class="group-label">Aiming method</div>
+                <div class="dropdown-container">
+                    <div class="dropdown-header" onclick="toggleDropdown(this)">
+                        <span class="dropdown-text">Silent aimbot</span><i class="fa-solid fa-chevron-down dropdown-icon"></i>
+                    </div>
+                    <div class="dropdown-list">
+                        <div class="dropdown-item" onclick="selectOption(this)">Silent aimbot</div>
+                        <div class="dropdown-item" onclick="selectOption(this)">Memory aim</div>
+                    </div>
+                </div>
+                <div class="checkbox-row" style="margin-top: 8px;" onclick="toggleCheckbox(this)">
+                    <div class="cb-left"><div class="custom-checkbox active"></div><span class="label">Show FOV circle</span></div>
+                    <div class="color-preview"></div>
+                </div>
+                <div class="group-label">Hitbox</div>
+                <div class="dropdown-container">
+                    <div class="dropdown-header" onclick="toggleDropdown(this)">
+                        <span class="dropdown-text">Head</span><i class="fa-solid fa-chevron-down dropdown-icon"></i>
+                    </div>
+                    <div class="dropdown-list">
+                        <div class="dropdown-item" onclick="selectOption(this)">Head</div>
+                        <div class="dropdown-item" onclick="selectOption(this)">Neck</div>
+                    </div>
+                </div>
+                <div style="height: 20px;"></div>
+            </div>
+        </div>
+
+        <div id="tab-visuals" class="tab-content">
+            <div class="header-section">
+                <i class="fa-solid fa-eye"></i><span class="header-title">ThanhPrdiOSCrack</span>
+                <div class="header-divider"></div><span class="header-desc">Visual improvements.</span>
+            </div>
+            <div class="scroll-area">
+                <div class="checkbox-row" onclick="toggleCheckbox(this)">
+                    <div class="cb-left"><div class="custom-checkbox active"></div><span class="label">Enemy ESP</span></div>
+                </div>
+                <div class="checkbox-row" onclick="toggleCheckbox(this)">
+                    <div class="cb-left"><div class="custom-checkbox"></div><span class="label dim">Line</span></div>
+                    <div class="color-box" style="background-color: white;"></div>
+                </div>
+                <div class="checkbox-row" onclick="toggleCheckbox(this)">
+                    <div class="cb-left"><div class="custom-checkbox active"></div><span class="label">Box</span></div>
+                    <div class="color-group">
+                        <div class="color-box" style="background-color: #ff3b30;"></div>
+                        <div class="color-box" style="background-color: #4cd964;"></div>
+                    </div>
+                </div>
+                <div class="checkbox-row" onclick="toggleCheckbox(this)">
+                    <div class="cb-left"><div class="custom-checkbox active"></div><span class="label">Health</span></div>
+                </div>
+                <div class="checkbox-row" onclick="toggleCheckbox(this)">
+                    <div class="cb-left"><div class="custom-checkbox active"></div><span class="label">Nickname</span></div>
+                </div>
+                <div class="checkbox-row">
+                    <div class="cb-left" style="margin-left: 22px;"><span class="label dim" style="font-size: 9px;">Counter text color</span></div>
+                    <div class="color-box" style="background-color: #ff3b30;"></div>
+                </div>
+                <div class="slider-container">
+                    <div class="slider-label"><span>Text size</span><span class="slider-value" id="sizeValue">25.0px</span></div>
+                    <input type="range" min="10" max="40" value="25" step="0.5" id="sizeSlider" oninput="updateSlider(this)">
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-misc" class="tab-content">
+            <div class="header-section">
+                <i class="fa-solid fa-layer-group"></i><span class="header-title">MISC</span>
+                <div class="header-divider"></div><span class="header-desc">Exploits & movement.</span>
+            </div>
+            <div class="scroll-area">
+                 <div class="checkbox-row" onclick="toggleCheckbox(this)">
+                    <div class="cb-left"><div class="custom-checkbox"></div><span class="label dim">Speedhack</span></div>
+                </div>
+                 <div class="slider-container">
+                    <div class="slider-label"><span>Speed</span><span class="slider-value" style="color:#777">1.0x</span></div>
+                    <input type="range" min="1" max="10" value="1" step="0.5" oninput="this.previousElementSibling.children[1].innerText=this.value+'x'">
+                </div>
+                <div class="checkbox-row" onclick="toggleCheckbox(this)">
+                    <div class="cb-left"><div class="custom-checkbox"></div><span class="label dim">No Clip</span></div>
+                </div>
+                <div class="checkbox-row" onclick="toggleCheckbox(this)">
+                    <div class="cb-left"><div class="custom-checkbox"></div><span class="label dim">Fly</span></div>
+                </div>
+                 <div class="group-label">Config</div>
+                <div class="dropdown-container">
+                    <div class="dropdown-header" onclick="toggleDropdown(this)">
+                        <span class="dropdown-text">Default Config</span><i class="fa-solid fa-chevron-down dropdown-icon"></i>
+                    </div>
+                    <div class="dropdown-list">
+                        <div class="dropdown-item" onclick="selectOption(this)">Legit Config</div>
+                        <div class="dropdown-item" onclick="selectOption(this)">Rage Config</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-settings" class="tab-content">
+            <div class="header-section">
+                <i class="fa-solid fa-gear"></i><span class="header-title">SETTINGS</span>
+                <div class="header-divider"></div><span class="header-desc">Menu settings.</span>
+            </div>
+            <div class="scroll-area">
+                <div class="info-row">60.0 FPS | 1.2ms</div>
+                <div class="info-row dim">Run: 1.41h | Build: 1.6.2</div>
+                
+                <div class="checkbox-row" style="margin-top: 10px;">
+                    <div class="cb-left"><span class="label">Accent Color</span></div>
+                    <div class="color-preview" style="background-color: var(--accent);"></div>
+                </div>
+
+                <div class="info-row pink">Sub: 3d 23h left</div>
+                
+                <div class="checkbox-row" style="margin-top: 10px;" onclick="toggleCheckbox(this)">
+                    <div class="cb-left"><div class="custom-checkbox"></div><span class="label dim">Streamproof</span></div>
+                </div>
+            </div>
+            <div class="btn-container">
+                <button class="btn">Silent Mode</button>
+                <button class="btn">Save Cfg</button>
+                <button class="btn">Load Cfg</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function switchTab(tabId, navElement) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+            document.getElementById('tab-' + tabId).classList.add('active');
+            navElement.classList.add('active');
+        }
+
+        function toggleCheckbox(row) {
+            const checkbox = row.querySelector('.custom-checkbox');
+            const label = row.querySelector('.label');
+            checkbox.classList.toggle('active');
+            if (label) {
+                label.classList.toggle('dim', !checkbox.classList.contains('active'));
+            }
+        }
+
+        function toggleDropdown(header) {
+            document.querySelectorAll('.dropdown-list').forEach(l => {
+                if(l !== header.nextElementSibling) l.classList.remove('open');
+            });
+            header.nextElementSibling.classList.toggle('open');
+        }
+
+        function selectOption(item) {
+            const container = item.closest('.dropdown-container');
+            container.querySelector('.dropdown-text').innerText = item.innerText;
+            container.querySelector('.dropdown-list').classList.remove('open');
+            event.stopPropagation();
+        }
+
+        document.addEventListener('click', (e) => {
+            if(!e.target.closest('.dropdown-container')) {
+                document.querySelectorAll('.dropdown-list').forEach(l => l.classList.remove('open'));
+            }
+        });
+
+        function updateSlider(range) {
+            const valueSpan = range.previousElementSibling.querySelector('.slider-value');
+            if (valueSpan && range.id === 'sizeSlider') {
+                valueSpan.innerText = parseFloat(range.value).toFixed(1) + "px";
+            }
+            const val = (range.value - range.min) / (range.max - range.min) * 100;
+            range.style.background = `linear-gradient(to right, #ff5f1f 0%, #ff5f1f ${val}%, #1e1e24 ${val}%, #1e1e24 100%)`;
+        }
+        
+        window.onload = function() {
+            const sizeSlider = document.getElementById('sizeSlider');
+            if(sizeSlider) updateSlider(sizeSlider);
+        }
+    </script>
+</body>
+</html>
