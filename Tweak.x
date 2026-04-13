@@ -12,7 +12,6 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    // ตั้งค่า WebView
     WKWebViewConfiguration *config = [[WKWebViewConfiguration alloc] init];
     WKUserContentController *controller = [[WKUserContentController alloc] init];
     [controller addScriptMessageHandler:self name:@"native"];
@@ -24,7 +23,7 @@
     self.webView.opaque = NO;
     [self.view addSubview:self.webView];
     
-    // ========== HTML ฝังในโค้ด (สวย เท่ ไม่ต้องพึ่งไฟล์) ==========
+    // HTML สวยงามฝังในโค้ด
     NSString *htmlString = @"<!DOCTYPE html>"
     "<html>"
     "<head>"
@@ -124,7 +123,10 @@
         }
     }
     if (!window) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         window = [UIApplication sharedApplication].keyWindow;
+#pragma clang diagnostic pop
     }
     if (window) {
         self.view.frame = window.bounds;
