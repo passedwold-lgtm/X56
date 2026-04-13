@@ -1,0 +1,9 @@
+Package: com.satoo.nexorahtml
+Name: NEXORA HTML
+Version: 1.0.0
+Architecture: iphoneos-arm
+Description: Mod Menu with HTML UI (WKWebView)
+Maintainer: SATOO
+Author: SATOO x DEEPSEEK
+Section: Tweaks
+Depends: mobilesubstrate, preferenceloader
